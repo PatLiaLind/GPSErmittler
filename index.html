@@ -26,11 +26,10 @@
         .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .log-area { width: 100%; background: #000; border-radius: 8px; border: 1px solid #333; height: 150px; overflow-y: auto; font-family: monospace; font-size: 10px; color: #00ff00; margin-bottom: 10px; }
         .log-entry { display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding: 5px; align-items: center; }
-        .trace-entry { color: #b19cd9; } /* Lila für automatische Spurpunkte */
+        .trace-entry { color: #b19cd9; } 
         
         .btn-x { background: #ff4444; color: white; border: none; border-radius: 4px; padding: 2px 8px; font-weight: bold; }
         .btn-copy { width: 100%; padding: 12px; background: #444; color: white; border: none; border-radius: 8px; font-weight: bold; }
-        .indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -41,10 +40,38 @@
     <div class="card">
         <label>Autobahn & Richtung</label>
         <select id="ab_select">
-            <option value="A44_R1">A44 (Fahrtrichtung 1)</option>
-            <option value="A44_R2">A44 (Fahrtrichtung 2)</option>
-            <option value="A46_R1">A46 (Fahrtrichtung 1)</option>
-            <option value="A46_R2">A46 (Fahrtrichtung 2)</option>
+            <optgroup label="A1">
+                <option value="A1_R1">A1 (Ri. Bremen)</option>
+                <option value="A1_R2">A1 (Ri. Köln)</option>
+            </optgroup>
+            <optgroup label="A3">
+                <option value="A3_R1">A3 (Ri. Oberhausen)</option>
+                <option value="A3_R2">A3 (Ri. Frankfurt)</option>
+            </optgroup>
+            <optgroup label="A44">
+                <option value="A44_R1">A44 (Ri. Velbert)</option>
+                <option value="A44_R2">A44 (Ri. Düsseldorf)</option>
+            </optgroup>
+            <optgroup label="A46">
+                <option value="A46_R1">A46 (Ri. Wuppertal)</option>
+                <option value="A46_R2" selected>A46 (Ri. Düsseldorf)</option>
+            </optgroup>
+            <optgroup label="A57">
+                <option value="A57_R1">A57 (Ri. Goch)</option>
+                <option value="A57_R2">A57 (Ri. Köln)</option>
+            </optgroup>
+            <optgroup label="A59">
+                <option value="A59_R1">A59 (Ri. Duisburg)</option>
+                <option value="A59_R2">A59 (Ri. Düsseldorf)</option>
+            </optgroup>
+            <optgroup label="A535">
+                <option value="A535_R1">A535 (Ri. Velbert)</option>
+                <option value="A535_R2">A535 (Ri. Wuppertal)</option>
+            </optgroup>
+            <optgroup label="A542">
+                <option value="A542_R1">A542 (Ri. Monheim)</option>
+                <option value="A542_R2">A542 (Ri. Langenfeld)</option>
+            </optgroup>
         </select>
 
         <label>Manuelle KM-Eingabe (Schild)</label>
@@ -61,11 +88,11 @@
 
     <div class="log-section">
         <div class="log-header">
-            <span>Messprotokoll:</span>
-            <button class="btn-copy" style="width: auto; padding: 5px 15px;" onclick="copyLog()">📋 Kopieren</button>
+            <span>Messprotokoll (Schilder):</span>
+            <button class="btn-copy" style="width: auto; padding: 5px 15px;" onclick="copyLog()">📋 Alles Kopieren</button>
         </div>
         <div id="log-km" class="log-area"></div>
-        <label>Kurven-Trace (Auto-Punkte):</label>
+        <label>Kurven-Trace (Auto-Geometrie):</label>
         <div id="log-trace" class="log-area"></div>
     </div>
 </div>
@@ -99,7 +126,8 @@
                 const head = pos.coords.heading ? pos.coords.heading.toFixed(0) : "0";
                 const zeit = new Date().toLocaleTimeString();
                 
-                if (acc > 15 && !isManual) return; // Überspringe schlechte Auto-Trace Punkte
+                // Auto-Trace nur loggen wenn Genauigkeit unter 15m
+                if (acc > 15 && !isManual) return; 
 
                 const entryData = `[${lat}, ${lon}, ${km}], // ${ab} (Acc: ${acc.toFixed(1)}m, Dir: ${head}°, ${zeit})`;
                 
@@ -127,7 +155,6 @@
         document.getElementById("stopTrace").disabled = !active;
         
         if (active) {
-            // Alle 4 Sekunden einen Geometrie-Punkt setzen
             traceInterval = setInterval(() => savePoint(false), 4000);
             updateStatus("🛰️ Auto-Trace gestartet...", "#b19cd9");
         } else {
@@ -142,7 +169,12 @@
         text += "\n--- GEOMETRIE TRACE ---\n";
         document.querySelectorAll("#log-trace .log-entry span").forEach(e => text += e.innerText + "\n");
         
-        navigator.clipboard.writeText(text).then(() => alert("Alles kopiert!"));
+        if(text.trim().length < 50) {
+            alert("Keine Daten zum Kopieren vorhanden.");
+            return;
+        }
+
+        navigator.clipboard.writeText(text).then(() => alert("✅ Alles kopiert!\nDie Daten sind nun in der Zwischenablage."));
     }
 </script>
 
