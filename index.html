@@ -70,53 +70,62 @@
 </div>
 
 <script>
-    function savePoint() {
-        const ab = document.getElementById("ab_select").value;
-        const input = document.getElementById("km_input");
-        const status = document.getElementById("gps-status");
-        const log = document.getElementById("log");
-        const kmValue = input.value;
+function savePoint() {
+    const ab = document.getElementById("ab_select").value;
+    const input = document.getElementById("km_input");
+    const status = document.getElementById("gps-status");
+    const log = document.getElementById("log");
+    const kmValue = input.value;
 
-        if (!kmValue) {
-            status.innerText = "❗ Bitte Kilometer eingeben!";
-            return;
-        }
-
-        status.innerText = "⏳ GPS wird fixiert...";
-
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const lat = pos.coords.latitude.toFixed(6);
-                const lon = pos.coords.longitude.toFixed(6);
-                const km = kmValue.replace(',', '.');
-                
-                // Formatierte Ausgabe für dein geoPaths Objekt
-                // Wir fügen die Autobahn als Kommentar hinzu, damit du es beim Kopieren sofort zuordnen kannst
-                const entry = `[${lat}, ${lon}, ${km}], // ${ab}`;
-                
-                if (log.innerText === "Noch keine Daten...") {
-                    log.innerText = "";
-                }
-                
-                // Neuen Eintrag oben hinzufügen
-                log.innerText = entry + "\n" + log.innerText;
-                status.innerText = `✅ Gespeichert: ${ab} km ${km}`;
-                
-                // Eingabefeld für nächstes Schild leeren
-                input.value = "";
-                // Fokus behalten für schnelle nächste Eingabe
-                input.focus();
-            },
-            (err) => {
-                status.innerText = "❌ Fehler: " + err.message;
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 8000,
-                maximumAge: 0
-            }
-        );
+    if (!kmValue) {
+        status.innerText = "❗ Bitte erst KM eingeben!";
+        status.style.color = "#ff4444";
+        return;
     }
+
+    status.innerText = "⏳ Signal wird geprüft...";
+    status.style.color = "#ffcc00";
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const lat = pos.coords.latitude.toFixed(6);
+            const lon = pos.coords.longitude.toFixed(6);
+            const acc = pos.coords.accuracy; // Genauigkeit in Metern
+            const km = kmValue.replace(',', '.');
+            const zeit = new Date().toLocaleTimeString();
+            
+            // Log-Eintrag erstellen
+            const entry = `[${lat}, ${lon}, ${km}], // ${ab} (Präzision: ${acc.toFixed(1)}m, ${zeit})`;
+            
+            if (log.innerText === "Noch keine Daten...") log.innerText = "";
+            
+            // Check der Genauigkeit: Warnung bei > 10 Metern
+            if (acc > 10) {
+                status.innerHTML = `⚠️ ACHTUNG: Ungenau (${acc.toFixed(1)}m)!<br>Punkt trotzdem geloggt.`;
+                status.style.color = "#ffa500"; // Orange
+            } else {
+                status.innerHTML = `✅ Präzise erfasst! (${acc.toFixed(1)}m)<br>Zeit: ${zeit}`;
+                status.style.color = "#00ff00"; // Grün
+            }
+            
+            // Punkt zum Log hinzufügen
+            log.innerText = entry + "\n" + log.innerText;
+            
+            // Input leeren und Fokus zurücksetzen
+            input.value = "";
+            input.focus();
+        },
+        (err) => {
+            status.innerText = "❌ Fehler: " + err.message;
+            status.style.color = "#ff4444";
+        },
+        {
+            enableHighAccuracy: true,
+            maximumAge: 0,    // Zwingt zur Neuberechnung
+            timeout: 10000    // Bricht nach 10 Sek ab, wenn kein Signal kommt
+        }
+    );
+}
 
     function copyLog() {
         const log = document.getElementById("log").innerText;
