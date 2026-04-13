@@ -3,264 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KM-Logger Ultra-Präzision</title>
+    <title>KM-Logger Ultra Dual-Mode</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 15px;
-            background: #121212;
-            color: #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 450px;
-        }
-        h2 { text-align: center; color: #007BFF; margin-bottom: 15px; }
+        body { font-family: sans-serif; margin: 0; padding: 15px; background: #121212; color: #e0e0e0; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; }
+        .card { background: #1e1e1e; padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); margin-bottom: 15px; border: 1px solid #333; }
+        h2 { text-align: center; color: #007BFF; margin: 10px 0; }
         
-        .card {
-            background: #1e1e1e;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-            border: 1px solid #333;
-        }
+        label { display: block; margin: 10px 0 5px 5px; font-size: 0.8em; color: #aaa; text-transform: uppercase; }
+        select, input { width: 100%; padding: 12px; font-size: 18px; border-radius: 8px; border: 2px solid #444; background: #000; color: #00ff00; text-align: center; box-sizing: border-box; }
 
-        label { display: block; margin: 10px 0 5px 5px; font-size: 0.85em; color: #aaa; text-transform: uppercase; }
+        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn { padding: 15px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; color: white; }
+        .btn-km { background: #28a745; grid-column: span 2; font-size: 20px; }
+        .btn-trace { background: #6f42c1; }
+        .btn-stop { background: #dc3545; }
+        .btn:disabled { background: #444; opacity: 0.6; }
 
-        select, input {
-            width: 100%;
-            padding: 15px;
-            font-size: 20px;
-            border-radius: 10px;
-            border: 2px solid #444;
-            background: #000;
-            color: #00ff00;
-            text-align: center;
-            box-sizing: border-box;
-            margin-bottom: 10px;
-        }
-
-        select { color: white; -webkit-appearance: none; text-align-last: center; }
-
-        .btn-capture {
-            width: 100%;
-            padding: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            background: #28a745;
-            color: white;
-            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
-            transition: all 0.1s;
-        }
-
-        .btn-capture:active { transform: scale(0.96); background: #218838; }
-        .btn-capture:disabled { background: #555; box-shadow: none; cursor: not-allowed; }
-
-        .status-box {
-            min-height: 50px;
-            text-align: center;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.9em;
-            background: #252525;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        /* Log-Einträge Design */
-        #log {
-            width: 100%;
-            background: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #333;
-            margin-top: 10px;
-        }
-
-        .log-entry {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 12px;
-            border-bottom: 1px solid #222;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .log-text {
-            font-family: "Courier New", monospace;
-            font-size: 11px;
-            color: #00ff00;
-            line-height: 1.4;
-            flex-grow: 1;
-            padding-right: 10px;
-        }
-
-        .btn-delete {
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .btn-copy {
-            width: 100%;
-            margin-top: 15px;
-            padding: 15px;
-            background: #444;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .empty-hint { padding: 20px; text-align: center; color: #555; font-style: italic; }
+        .status-box { min-height: 60px; text-align: center; margin: 10px 0; padding: 10px; border-radius: 8px; background: #252525; font-size: 0.9em; border: 1px solid #444; }
+        
+        .log-section { width: 100%; }
+        .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .log-area { width: 100%; background: #000; border-radius: 8px; border: 1px solid #333; height: 150px; overflow-y: auto; font-family: monospace; font-size: 10px; color: #00ff00; margin-bottom: 10px; }
+        .log-entry { display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding: 5px; align-items: center; }
+        .trace-entry { color: #b19cd9; } /* Lila für automatische Spurpunkte */
+        
+        .btn-x { background: #ff4444; color: white; border: none; border-radius: 4px; padding: 2px 8px; font-weight: bold; }
+        .btn-copy { width: 100%; padding: 12px; background: #444; color: white; border: none; border-radius: 8px; font-weight: bold; }
+        .indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📍 KM Erfassung Pro</h2>
+    <h2>📍 KM-Logger Dual-Mode</h2>
     
     <div class="card">
-        <label>Autobahn wählen:</label>
+        <label>Autobahn & Richtung</label>
         <select id="ab_select">
-            <option value="A1">A1</option>
-            <option value="A3">A3</option>
-            <option value="A44">A44</option>
-            <option value="A46" selected>A46</option>
-            <option value="A57">A57</option>
-            <option value="A59">A59</option>
-            <option value="A535">A535</option>
-            <option value="A542">A542</option>
+            <option value="A44_R1">A44 (Fahrtrichtung 1)</option>
+            <option value="A44_R2">A44 (Fahrtrichtung 2)</option>
+            <option value="A46_R1">A46 (Fahrtrichtung 1)</option>
+            <option value="A46_R2">A46 (Fahrtrichtung 2)</option>
         </select>
 
-        <label>Kilometer (Schild):</label>
-        <input type="number" id="km_input" inputmode="decimal" step="0.1" placeholder="000.0">
+        <label>Manuelle KM-Eingabe (Schild)</label>
+        <input type="number" id="km_input" inputmode="decimal" placeholder="z.B. 105.5">
         
-        <button id="btn_main" class="btn-capture" onclick="savePoint()">PUNKT LOGGEN</button>
-        
-        <div id="gps-status" class="status-box">Bereit für Messung</div>
+        <div class="button-group">
+            <button class="btn btn-km" onclick="savePoint(true)">📍 SCHILD LOGGEN</button>
+            <button id="startTrace" class="btn btn-trace" onclick="toggleTracing(true)">🛰️ TRACE START</button>
+            <button id="stopTrace" class="btn btn-stop" onclick="toggleTracing(false)" disabled>⏹️ STOP</button>
+        </div>
+
+        <div id="gps-status" class="status-box">Bereit.</div>
     </div>
 
-    <div id="log">
-        <div class="empty-hint">Noch keine Daten erfasst...</div>
+    <div class="log-section">
+        <div class="log-header">
+            <span>Messprotokoll:</span>
+            <button class="btn-copy" style="width: auto; padding: 5px 15px;" onclick="copyLog()">📋 Kopieren</button>
+        </div>
+        <div id="log-km" class="log-area"></div>
+        <label>Kurven-Trace (Auto-Punkte):</label>
+        <div id="log-trace" class="log-area"></div>
     </div>
-    
-    <button class="btn-copy" onclick="copyLog()">📋 Log für Datenbank kopieren</button>
 </div>
 
 <script>
-    function savePoint() {
-        const ab = document.getElementById("ab_select").value;
-        const input = document.getElementById("km_input");
-        const status = document.getElementById("gps-status");
-        const log = document.getElementById("log");
-        const btn = document.getElementById("btn_main");
-        const kmValue = input.value;
+    let traceInterval = null;
+    const logKm = document.getElementById("log-km");
+    const logTrace = document.getElementById("log-trace");
+    const status = document.getElementById("gps-status");
 
-        if (!kmValue) {
-            status.innerText = "❗ Fehler: KM eingeben";
-            status.style.color = "#ff4444";
+    function updateStatus(msg, color = "#e0e0e0") {
+        status.innerHTML = msg;
+        status.style.color = color;
+    }
+
+    function savePoint(isManual) {
+        const ab = document.getElementById("ab_select").value;
+        const kmInput = document.getElementById("km_input");
+        const km = isManual ? kmInput.value.replace(',', '.') : "TRACE";
+
+        if (isManual && !km) {
+            updateStatus("❗ Bitte KM eingeben", "#ff4444");
             return;
         }
-
-        // UI sperren während GPS-Fix
-        btn.disabled = true;
-        status.innerText = "⏳ Hole frisches GPS-Signal...";
-        status.style.color = "#ffcc00";
 
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const lat = pos.coords.latitude.toFixed(6);
                 const lon = pos.coords.longitude.toFixed(6);
                 const acc = pos.coords.accuracy;
-                const km = kmValue.replace(',', '.');
+                const head = pos.coords.heading ? pos.coords.heading.toFixed(0) : "0";
                 const zeit = new Date().toLocaleTimeString();
                 
-                // Format für geoPaths
-                const entryData = `[${lat}, ${lon}, ${km}], // ${ab} (${acc.toFixed(1)}m, ${zeit})`;
-                
-                // Platzhalter entfernen falls vorhanden
-                if (log.querySelector('.empty-hint')) {
-                    log.innerHTML = "";
-                }
-                
-                // Neuen Log-Eintrag erstellen
-                const div = document.createElement("div");
-                div.className = "log-entry";
-                div.innerHTML = `
-                    <div class="log-text">${entryData}</div>
-                    <button class="btn-delete" onclick="removeEntry(this)">X</button>
-                `;
-                
-                // Oben einfügen
-                log.insertBefore(div, log.firstChild);
+                if (acc > 15 && !isManual) return; // Überspringe schlechte Auto-Trace Punkte
 
-                // Feedback zur Genauigkeit
-                if (acc > 10) {
-                    status.innerHTML = `⚠️ UNGENAU (${acc.toFixed(1)}m)<br>Trotzdem geloggt.`;
-                    status.style.color = "#ffa500";
-                } else {
-                    status.innerHTML = `✅ PRÄZISE (${acc.toFixed(1)}m)<br>Erfolgreich gespeichert.`;
-                    status.style.color = "#00ff00";
-                }
+                const entryData = `[${lat}, ${lon}, ${km}], // ${ab} (Acc: ${acc.toFixed(1)}m, Dir: ${head}°, ${zeit})`;
                 
-                // Reset UI
-                btn.disabled = false;
-                input.value = "";
-                input.focus();
+                const div = document.createElement("div");
+                div.className = "log-entry" + (isManual ? "" : " trace-entry");
+                div.innerHTML = `<span>${entryData}</span><button class="btn-x" onclick="this.parentElement.remove()">X</button>`;
+                
+                const targetLog = isManual ? logKm : logTrace;
+                targetLog.insertBefore(div, targetLog.firstChild);
+
+                if (isManual) {
+                    updateStatus(`✅ Schild km ${km} erfasst!<br><small>Präzision: ${acc.toFixed(1)}m</small>`, "#00ff00");
+                    kmInput.value = "";
+                } else {
+                    updateStatus(`🛰️ Tracing aktiv...<br><small>Letzter Punkt: ${zeit} (${acc.toFixed(1)}m)</small>`, "#b19cd9");
+                }
             },
-            (err) => {
-                status.innerText = "❌ GPS-Fehler: " + err.message;
-                status.style.color = "#ff4444";
-                btn.disabled = false;
-            },
-            {
-                enableHighAccuracy: true,
-                maximumAge: 0, // KEINE alten Daten verwenden!
-                timeout: 10000
-            }
+            (err) => updateStatus("❌ GPS-Fehler: " + err.message, "#ff4444"),
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
         );
     }
 
-    function removeEntry(btn) {
-        btn.parentElement.remove();
-        const log = document.getElementById("log");
-        if (log.children.length === 0) {
-            log.innerHTML = '<div class="empty-hint">Noch keine Daten erfasst...</div>';
+    function toggleTracing(active) {
+        document.getElementById("startTrace").disabled = active;
+        document.getElementById("stopTrace").disabled = !active;
+        
+        if (active) {
+            // Alle 4 Sekunden einen Geometrie-Punkt setzen
+            traceInterval = setInterval(() => savePoint(false), 4000);
+            updateStatus("🛰️ Auto-Trace gestartet...", "#b19cd9");
+        } else {
+            clearInterval(traceInterval);
+            updateStatus("⏹️ Tracing beendet.", "#ffffff");
         }
     }
 
     function copyLog() {
-        const entries = document.querySelectorAll(".log-text");
-        let text = "";
-        entries.forEach(e => text += e.innerText + "\n");
+        let text = "--- MANUELLE SCHILDER ---\n";
+        document.querySelectorAll("#log-km .log-entry span").forEach(e => text += e.innerText + "\n");
+        text += "\n--- GEOMETRIE TRACE ---\n";
+        document.querySelectorAll("#log-trace .log-entry span").forEach(e => text += e.innerText + "\n");
         
-        if (!text) {
-            alert("Keine Daten vorhanden.");
-            return;
-        }
-
-        navigator.clipboard.writeText(text).then(() => {
-            alert("✅ Log kopiert! Du kannst es jetzt in 'geoPaths' einfügen.");
-        });
+        navigator.clipboard.writeText(text).then(() => alert("Alles kopiert!"));
     }
 </script>
 
