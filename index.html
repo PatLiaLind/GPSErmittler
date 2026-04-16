@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KM-Logger Ultra Dual-Mode</title>
+    <title>KM-Logger Ultra Single-Line</title>
     <style>
         body { font-family: sans-serif; margin: 0; padding: 15px; background: #121212; color: #e0e0e0; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 500px; }
@@ -38,40 +38,16 @@
     <h2>📍 KM-Logger Dual-Mode</h2>
     
     <div class="card">
-        <label>Autobahn & Richtung</label>
+        <label>Autobahn wählen (Hauptlinie)</label>
         <select id="ab_select">
-            <optgroup label="A1">
-                <option value="A1_R1">A1 (Ri. Dortmund)</option>
-                <option value="A1_R2">A1 (Ri. Köln)</option>
-            </optgroup>
-            <optgroup label="A3">
-                <option value="A3_R1">A3 (Ri. Oberhausen)</option>
-                <option value="A3_R2">A3 (Ri. Köln)</option>
-            </optgroup>
-            <optgroup label="A44">
-                <option value="A44_R1">A44 (Ri. Velbert)</option>
-                <option value="A44_R2">A44 (Ri. Wuppertal)</option>
-            </optgroup>
-            <optgroup label="A46">
-                <option value="A46_R1">A46 (Ri. Brilon)</option>
-                <option value="A46_R2" selected>A46 (Ri. Heinsberg)</option>
-            </optgroup>
-            <optgroup label="A57">
-                <option value="A57_R1">A57 (Ri. Nijmegen)</option>
-                <option value="A57_R2">A57 (Ri. Köln)</option>
-            </optgroup>
-            <optgroup label="A59">
-                <option value="A59_R1">A59 (Ri. Dinslaken)</option>
-                <option value="A59_R2">A59 (Ri. Köln)</option>
-            </optgroup>
-            <optgroup label="A535">
-                <option value="A535_R1">A535 (Ri. Velbert)</option>
-                <option value="A535_R2">A535 (Ri. Wuppertal)</option>
-            </optgroup>
-            <optgroup label="A542">
-                <option value="A542_R1">A542 (Ri. Monheim)</option>
-                <option value="A542_R2">A542 (Ri. Langenfeld)</option>
-            </optgroup>
+            <option value="A1">A1</option>
+            <option value="A3">A3</option>
+            <option value="A44">A44</option>
+            <option value="A46" selected>A46</option>
+            <option value="A57">A57</option>
+            <option value="A59">A59</option>
+            <option value="A535">A535</option>
+            <option value="A542">A542</option>
         </select>
 
         <label>Manuelle KM-Eingabe (Schild)</label>
@@ -155,6 +131,7 @@
         document.getElementById("stopTrace").disabled = !active;
         
         if (active) {
+            // Alle 4 Sekunden Messung anfordern
             traceInterval = setInterval(() => savePoint(false), 4000);
             updateStatus("🛰️ Auto-Trace gestartet...", "#b19cd9");
         } else {
